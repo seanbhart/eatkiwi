@@ -14,4 +14,5 @@ def upvote_link_on_kiwistand(href):
     send(message)
 
 if __name__ == "__main__":
-    upvote_link_on_kiwistand("https://www.google.com")
+    href = "https://www.theblock.co/post/232604/coinbase-ceo-cites-rising-threat-from-china-in-fresh-plea-to-us-officials"
+    upvote_link_on_kiwistand(href)

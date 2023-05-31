@@ -6,8 +6,6 @@ from pathlib import Path
 import requests
 from eth_account import Account
 from eth_account.messages import encode_defunct
-# from eth_abi.packed import encode_abi_packed
-# from eth_utils import keccak
 from decouple import config
 
 
@@ -53,3 +51,7 @@ def send(message):
         print(response.text)
     except Exception as e:
         raise Exception("Failed sending message") from e
+
+def send_link_to_kiwistand(href, title):
+    message = create_message(href, title, "amplify")
+    send(message)
