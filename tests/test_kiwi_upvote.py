@@ -1,18 +1,16 @@
 import logging
-from getpass import getpass
-from eatkiwi.utils.kiwi import create_message, send
+logging.basicConfig(level=logging.INFO)
 
-def upvote_link_on_kiwistand(href):
+from eatkiwi.utils.kiwi import upvote_link_on_kiwistand
+
+
+if __name__ == "__main__":
     """
     This function sends a test link to Kiwistand. 
 
-    The link provided should be an original link, indicating that it's the 
-    first submission. It's important that the link hasn't been previously 
-    submitted to ensure accurate testing and analysis.
+    The link provided should NOT be an original link, indicating that
+    the link has been submitted before. It's important that the link
+    HAS been previously submitted to ensure accurate testing and analysis.
     """
-    message = create_message(href, "", "vote")
-    send(message)
-
-if __name__ == "__main__":
     href = "https://www.theblock.co/post/232604/coinbase-ceo-cites-rising-threat-from-china-in-fresh-plea-to-us-officials"
     upvote_link_on_kiwistand(href)

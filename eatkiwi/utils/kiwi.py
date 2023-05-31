@@ -1,13 +1,12 @@
-import argparse
-import json
 import time
-import os
-from pathlib import Path
+import logging
 import requests
 from eth_account import Account
-from eth_account.messages import encode_defunct
+from eth_account.messages import encode_defunct, encode_structured_data
 from decouple import config
 
+def get_unix_time():
+    return int(time.time())
 
 # Define the Message class
 class Message:
@@ -17,24 +16,51 @@ class Message:
         self.type = type_
         self.timestamp = timestamp
 
-
-def get_unix_time():
-    return int(time.time())
+    def build(self):
+        return {
+            "types": {
+                "EIP712Domain": [
+                    {"name": "name", "type": "string"},
+                    {"name": "version", "type": "string"},
+                    {"name": "salt", "type": "bytes32"},
+                ],
+                "Message": [
+                    {"name": "title", "type": "string"},
+                    {"name": "href", "type": "string"},
+                    {"name": "type", "type": "string"},
+                    {"name": "timestamp", "type": "uint256"},
+                ],
+            },
+            "domain": {
+                "name": "kiwinews",
+                "version": "1.0.0",
+                "salt": bytes.fromhex("fe7a9d68e99b6942bb3a36178b251da8bd061c20ed1e795207ae97183b590e5b"),
+            },
+            "primaryType": "Message",
+            "message": {
+                "title": self.title,
+                "href": self.href,
+                "type": self.type,
+                "timestamp": self.timestamp,
+            },
+        }
 
 def sign(message):
-    # hash = keccak(encode_abi_packed(['string'],[message]))
-    message_hash = encode_defunct(text=message)
+    # Create an account object from a mnemonic
     Account.enable_unaudited_hdwallet_features()
     acct = Account.from_mnemonic(config("FARCASTER_MNEMONIC_DEV01"))
-    print(f"sending from address: {acct.address}")
-    signature = acct.sign_message(message_hash)
-    return signature.messageHash.hex()
+    logging.info(f"sending from address: {acct.address}")
 
-def create_message(href, title, type_):
+    # Format and sign the message
+    signable_message = encode_structured_data(message)
+    signed_message = acct.sign_message(signable_message)
+    return signed_message.signature.hex()
+
+def create_message_data(href, title, type_):
     timestamp = get_unix_time()
     message = Message(title, href, type_, timestamp)
-    message_json = json.dumps(message.__dict__)
-    signature = sign(message_json)
+    message_eip712 = message.build()
+    signature = sign(message_eip712)
     body = {
         "title": message.title,
         "href": message.href,
@@ -42,16 +68,51 @@ def create_message(href, title, type_):
         "timestamp": timestamp,
         "signature": signature,
     }
-    print(body)
     return body
 
-def send(message):
+def send(data):
+    url = "https://news.kiwistand.com/api/v1/messages"
+    
     try:
-        response = requests.post("https://news.kiwistand.com/messages", json=message)
-        print(response.text)
+        response = requests.post(url, json=data)
+        status_code = response.status_code
+
+        if status_code == 200:  # OK
+            logging.info('Request was successful')
+        elif status_code == 201:  # Created
+            logging.info('Request was successful and a resource was created')
+        elif status_code == 400:  # Bad Request
+            logging.error(f'There was a problem with the request. Check the data sent: {response.text}')
+        elif status_code == 401:  # Unauthorized
+            logging.error(f'The request lacks valid authentication credentials: {response.text}')
+        elif status_code == 403:  # Forbidden
+            logging.error(f'The server understood the request but refuses to authorize it: {response.text}')
+        elif status_code == 404:  # Not Found
+            logging.error(f'The requested resource could not be found: {response.text}')
+        elif status_code == 500:  # Internal Server Error
+            logging.error(f'The server encountered an internal error: {response.text}')
+        else:
+            logging.error(f'Received status code that is not handled: {status_code}')
+        
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as errh:
+        logging.error(f"HTTP Error: {errh}")
+    except requests.exceptions.ConnectionError as errc:
+        logging.error(f"Error Connecting: {errc}")
+    except requests.exceptions.Timeout as errt:
+        logging.error(f"Timeout Error: {errt}")
+    except requests.exceptions.RequestException as err:
+        logging.error(f"Unexpected Error: {err}")
     except Exception as e:
+        logging.error(f"Failed sending message: {e}")
         raise Exception("Failed sending message") from e
 
 def send_link_to_kiwistand(href, title):
-    message = create_message(href, title, "amplify")
-    send(message)
+    data = create_message_data(href, title, "amplify")
+    logging.info(data)
+    send(data)
+
+def upvote_link_on_kiwistand(href):
+    data = create_message_data(href, "", "vote")
+    logging.info(data)
+    send(data)

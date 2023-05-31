@@ -1,6 +1,8 @@
 import logging
-from getpass import getpass
+logging.basicConfig(level=logging.INFO)
+
 from eatkiwi.utils.kiwi import send_link_to_kiwistand
+
 
 if __name__ == "__main__":
     """
