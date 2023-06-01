@@ -113,6 +113,6 @@ def send_link_to_kiwistand(href, title):
     send(data)
 
 def upvote_link_on_kiwistand(href):
-    data = create_message_data(href, "", "vote")
+    data = create_message_data(href, "", "amplify")
     logging.info(data)
     send(data)
