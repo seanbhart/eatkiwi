@@ -3,7 +3,7 @@ from decouple import config
 from pymongo import MongoClient
 from farcaster.models import Parent
 from eatkiwi.utils.bytes import cut_off_string
-from eatkiwi.utils.links import extract_link, get_page_title, check_url_contains_skip_list, truncate_string
+from eatkiwi.utils.links import extract_link, get_page_title, check_url_contains_domains, truncate_string
 from eatkiwi.utils.kiwi import send_link_to_kiwistand
 
 
@@ -38,7 +38,8 @@ def stream_notifications(client, fname, mnemonic):
                     continue
 
                 # check if link is from urls to skip
-                if check_url_contains_skip_list(link):
+                domains = ["kiwistand.com", "warpcast.com", "alphacaster.xyz"]
+                if check_url_contains_domains(link, domains):
                     continue
 
                 title = get_page_title(link)
@@ -72,6 +73,11 @@ def stream_casts(client, fname):
             title = get_page_title(link)
 
             if link is not None and title is not None and title != "" and title != " " and title != "Access denied":
+                # check if link is from urls to skip
+                domains = ["kiwistand.com", "warpcast.com", "alphacaster.xyz"]
+                if check_url_contains_domains(link, domains):
+                    continue
+                
                 # check if link has already been posted
                 result = collection.find_one({"link": link})
                 if result:
