@@ -1,4 +1,25 @@
-import sys
+
+def remove_substrings(s, substrings):
+    """
+    Removes all occurrences of the substrings in the input string s.
+    """
+    for substring in substrings:
+        s = s.replace(substring, "")
+    return s
+
+def reduce_word_count(text, max_words=350):
+    # Split the text into words
+    words = text.split()
+
+    # If the text has max_words or less, return the original text
+    if len(words) <= max_words:
+        return text
+
+    # Otherwise, truncate the text to max_words and add an ellipsis
+    reduced_words = words[:max_words]
+    reduced_text = " ".join(reduced_words)
+    reduced_text += "..."
+    return reduced_text
 
 def truncate_string_by_bytes(s, byte_limit):
     encoded = s.encode('utf-8')
@@ -7,11 +28,11 @@ def truncate_string_by_bytes(s, byte_limit):
         encoded = s.encode('utf-8')
     return s
 
-def trim_to_cast(s):
+def trim_to_cast_max_bytes(s):
     return truncate_string_by_bytes(s, 320)
 
-def truncate_string_by_character(s, max_length=80):
-    return (s[:77] + '...') if len(s) > max_length else s
+def truncate_string_by_character(s, max_characters=80):
+    return (s[:77] + '...') if len(s) > max_characters else s
 
 # The dev version doesn't include the warpcast link
 # to prevent annoying notifications for authors
