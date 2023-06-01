@@ -3,7 +3,7 @@ from decouple import config
 from pymongo import MongoClient
 from farcaster.models import Parent
 from eatkiwi.utils.bytes import cut_off_string
-from eatkiwi.utils.links import extract_link, get_page_title, check_url_contains_kiwistand
+from eatkiwi.utils.links import extract_link, get_page_title, check_url_contains_kiwistand, truncate_string
 from eatkiwi.utils.kiwi import send_link_to_kiwistand
 
 
@@ -44,6 +44,8 @@ def stream_notifications(client, fname):
                 title = get_page_title(link)
                 if title is not None and title != "" and title != " " and title != "Access denied":
                     # send link to kiwistand
+                    # truncate the title to the max kiwi post length (80 characters)
+                    title = truncate_string(title, 80)
                     if send_link_to_kiwistand(link, title):
 
                         try:
@@ -77,6 +79,9 @@ def stream_casts(client, fname):
 
                 # save the link to mongo
                 collection.insert_one({"link": link})
+
+                # truncate the title to the max kiwi post length (80 characters)
+                title = truncate_string(title, 80)
 
                 # post the link to fc
                 try:
