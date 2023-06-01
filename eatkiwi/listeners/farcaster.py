@@ -2,15 +2,12 @@ import logging
 from decouple import config
 from pymongo import MongoClient
 from farcaster.models import Parent
-from eatkiwi.utils.bytes import cut_off_string
-from eatkiwi.utils.links import extract_link, get_page_title, check_url_contains_domains, truncate_string
+from eatkiwi.utils.strings import truncate_string_by_character, trim_generated_cast
+from eatkiwi.utils.links import extract_link, get_page_title, check_url_contains_domains
 from eatkiwi.utils.kiwi import send_link_to_kiwistand
 
 
-def trim_to_cast(s):
-    return cut_off_string(s, 320)
-
-def stream_notifications(client, fname, mnemonic):
+def stream_notifications(client, fname, mnemonic, dev=False):
     logging.info("streaming notifications")
 
     # Stream new casts mentioning the chatbot, find the link in the cast, and post to kiwistand
@@ -46,7 +43,7 @@ def stream_notifications(client, fname, mnemonic):
                 if title is not None and title != "" and title != " " and title != "Access denied":
                     # send link to kiwistand
                     # truncate the title to the max kiwi post length (80 characters)
-                    title = truncate_string(title, 80)
+                    title = truncate_string_by_character(title, 80)
                     if send_link_to_kiwistand(link, title, mnemonic):
 
                         try:
@@ -56,7 +53,7 @@ def stream_notifications(client, fname, mnemonic):
                             logging.error(f"Failed sending message: {e}")
                             raise Exception("Failed sending message") from e
 
-def stream_casts(client, fname):
+def stream_casts(client, fname, dev=False):
     logging.info("streaming casts")
 
     # Connect to MongoDB server
@@ -86,14 +83,16 @@ def stream_casts(client, fname):
                 # save the link to mongo
                 collection.insert_one({"link": link})
 
-                # truncate the title to the max kiwi post length (80 characters)
-                title = truncate_string(title, 80)
+                # truncate the entire cast to the max cast length (320 bytes)
+                # title = truncate_string_by_character(title, 80)
+                generated_cast = trim_generated_cast(title, current_cast.author.username, current_cast.hash, link, max_bytes=320, dev=dev)
 
                 # post the link to fc
                 try:
                     # Post links directly in the text, not as an attachment or embed
                     # to ensure the link is visible in the cast received by the notification stream
-                    client.post_cast(f"Posted by @{current_cast.author.username}\n\n\"{title}\"\n{link}\nhttps://warpcast.com/{current_cast.author.username}/{current_cast.hash}")
+                    client.post_cast(generated_cast)
+                    # client.post_cast(f"Posted by @{current_cast.author.username}\n\n\"{title}\"\n{link}\nhttps://warpcast.com/{current_cast.author.username}/{current_cast.hash}")
                     # client.post_cast(f"Posted by @{current_cast.author.username}\n\n\"{title}\"\n{link}")
                 except Exception as e:
                     logging.error(f"Failed sending message: {e}")

@@ -18,8 +18,8 @@ else:
 client = Warpcast(mnemonic, rotation_duration=1)
 
 def main():
-    t1 = threading.Thread(target=stream_casts, args=(client, fname))
-    t2 = threading.Thread(target=stream_notifications, args=(client, fname, mnemonic))
+    t1 = threading.Thread(target=stream_casts, args=(client, fname, dev))
+    t2 = threading.Thread(target=stream_notifications, args=(client, fname, mnemonic, dev))
 
     t1.start()
     t2.start()

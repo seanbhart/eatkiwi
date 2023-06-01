@@ -4,9 +4,6 @@ from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 
 
-def truncate_string(s, max_length=80):
-    return (s[:77] + '...') if len(s) > max_length else s
-
 def check_url_contains_domains(url, domains):
     parsed_url = urlparse(url)
     return any(domain in parsed_url.netloc for domain in domains)
