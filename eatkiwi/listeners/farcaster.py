@@ -10,7 +10,7 @@ from eatkiwi.utils.kiwi import send_link_to_kiwistand
 def trim_to_cast(s):
     return cut_off_string(s, 320)
 
-def stream_notifications(client, fname):
+def stream_notifications(client, fname, mnemonic):
     logging.info("streaming notifications")
 
     # Stream new casts mentioning the chatbot, find the link in the cast, and post to kiwistand
@@ -46,7 +46,7 @@ def stream_notifications(client, fname):
                     # send link to kiwistand
                     # truncate the title to the max kiwi post length (80 characters)
                     title = truncate_string(title, 80)
-                    if send_link_to_kiwistand(link, title):
+                    if send_link_to_kiwistand(link, title, mnemonic):
 
                         try:
                             # add a reaction to the notifying cast

@@ -45,21 +45,21 @@ class Message:
             },
         }
 
-def sign(message):
+def sign(message, mnemonic):
     # Create an account object from a mnemonic
     Account.enable_unaudited_hdwallet_features()
-    acct = Account.from_mnemonic(config("FARCASTER_MNEMONIC_EATKIWI"))
+    acct = Account.from_mnemonic(mnemonic)
 
     # Format and sign the message
     signable_message = encode_structured_data(message)
     signed_message = acct.sign_message(signable_message)
     return signed_message.signature.hex()
 
-def create_message_data(href, title, type_):
+def create_message_data(href, title, type_, mnemonic):
     timestamp = get_unix_time()
     message = Message(title, href, type_, timestamp)
     message_eip712 = message.build()
-    signature = sign(message_eip712)
+    signature = sign(message_eip712, mnemonic)
     body = {
         "title": message.title,
         "href": message.href,
@@ -114,10 +114,10 @@ def send(data) -> bool:
         raise Exception("Failed sending message") from e
     return False
 
-def send_link_to_kiwistand(href, title):
-    data = create_message_data(href, title, "amplify")
+def send_link_to_kiwistand(href, title, mnemonic):
+    data = create_message_data(href, title, "amplify", mnemonic)
     return send(data)
 
-def upvote_link_on_kiwistand(href):
-    data = create_message_data(href, "", "amplify")
+def upvote_link_on_kiwistand(href, mnemonic):
+    data = create_message_data(href, "", "amplify", mnemonic)
     return send(data)
