@@ -48,7 +48,7 @@ class Message:
 def sign(message):
     # Create an account object from a mnemonic
     Account.enable_unaudited_hdwallet_features()
-    acct = Account.from_mnemonic(config("FARCASTER_MNEMONIC_DEV01"))
+    acct = Account.from_mnemonic(config("FARCASTER_MNEMONIC_EATKIWI"))
 
     # Format and sign the message
     signable_message = encode_structured_data(message)
