@@ -82,8 +82,8 @@ def stream_casts(client, fname):
                 try:
                     # Post links directly in the text, not as an attachment or embed
                     # to ensure the link is visible in the cast received by the notification stream
-                    # client.post_cast(f"Posted by @{current_cast.author.username}\n\n\"{title}\"\n{link}\nhttps://warpcast.com/{current_cast.author.username}/{current_cast.hash}")
-                    client.post_cast(f"Posted by @{current_cast.author.username}\n\n\"{title}\"\n{link}")
+                    client.post_cast(f"Posted by @{current_cast.author.username}\n\n\"{title}\"\n{link}\nhttps://warpcast.com/{current_cast.author.username}/{current_cast.hash}")
+                    # client.post_cast(f"Posted by @{current_cast.author.username}\n\n\"{title}\"\n{link}")
                 except Exception as e:
                     logging.error(f"Failed sending message: {e}")
                     raise Exception("Failed sending message") from e
