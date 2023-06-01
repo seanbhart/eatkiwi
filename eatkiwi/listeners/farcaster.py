@@ -53,7 +53,7 @@ def stream_casts(client, fname):
     logging.info("streaming casts")
 
     # Connect to MongoDB server
-    mongo_client = MongoClient(config("MONGO"))
+    mongo_client = MongoClient(config("MONGO_URL"))
     # Choose the database and collection
     db = mongo_client[config("MONGO_DB_FC")]
     collection = db[config("MONGO_FC_COLLECTION_LINKS")]
