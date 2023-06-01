@@ -1,7 +1,11 @@
 import re
 import requests
 from bs4 import BeautifulSoup
+from urllib.parse import urlparse
 
+def check_url_contains_kiwistand(url):
+    parsed_url = urlparse(url)
+    return 'kiwistand.com' in parsed_url.netloc
 
 def has_link(text):
     """
