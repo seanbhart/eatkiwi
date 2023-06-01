@@ -10,7 +10,7 @@ from eatkiwi.utils.kiwi import send_link_to_kiwistand
 def trim_to_cast(s):
     return cut_off_string(s, 320)
 
-def stream_notifications(client):
+def stream_notifications(client, fname):
     # Stream new casts mentioning the chatbot, find the link in the cast, and post to kiwistand
     for cast in client.stream_notifications(skip_existing=True):
         if cast:
@@ -24,42 +24,56 @@ def stream_notifications(client):
             logging.info(f"display_name: {cast.actor.display_name}:")
             logging.info("----")
 
-            link = extract_link(cast.text)
-            logging.info(f"link: {link}")
-            title = get_page_title(link)
-            logging.info(f"title: {title}")
+            # check if cast has the word "eat" in it
+            # if it does get the original cast and send the link to kiwistand
+            if "eat" in cast.content.cast.text.lower() and cast.content.cast.parent_hash is not None:
 
-            if link is not None and title is not None:
-                # post the link to kiwistand
-                # send_link_to_kiwistand(link, title)
-                logging.info(f"would post to kiwistand: {title} | {link}")
-            else:
-                logging.info("no link found - searching parent cast(s)")
+                logging.info(f"cast parent_hash: {cast.content.cast.parent_hash}")
+                original_cast = client.get_cast(cast.content.cast.parent_hash).cast
+                logging.info(f"original_cast: {original_cast}")
+                logging.info(f"original_cast text: {original_cast.text}")
+                if hasattr(original_cast, 'embeds'):
+                    logging.info(f"original_cast embeds: {original_cast.embeds}")
+                if hasattr(original_cast, 'attachments'):
+                    logging.info(f"original_cast attachments: {original_cast.attachments}")
 
-                # search parent casts for a link and loop upwards until a link is found
-                found_link = False
-                while found_link is False and current_cast.parent_hash is not None:
-                    logging.info(f"current_cast parent_hash: {current_cast.parent_hash}")
-                    current_cast = client.get_cast(current_cast.parent_hash).cast
-                    logging.info(f"current_cast text: {current_cast.text}")
+                # # ensure the parent cast is from the bot
+                # if original_cast.author.username != fname:
+                #     logging.info("parent cast is not from bot, ending")
+                #     logging.info("----")
+                #     continue
 
-                    link = extract_link(current_cast.text)
-                    if link is None:
-                        # no link found in parent cast, continue searching
-                        logging.info("no link found in parent cast, continuing search")
-                        logging.info("----")
-                        continue
+                link = extract_link(original_cast.text)
+                if link is None:
+                    # try to find an embedded link or an attachment link
+                    if hasattr(original_cast, 'embeds') and original_cast.embeds is not None:
+                        if original_cast.embeds[0].url is not None:
+                            link = original_cast.embeds[0].url
+                        else:
+                            logging.info("no embedded link found in original cast, ending")
+                            logging.info("----")
+                    elif hasattr(original_cast, 'attachments') and original_cast.attachments is not None:
+                        if original_cast.attachments[0].open_graph.url is not None:
+                            link = original_cast.attachments[0].open_graph.url
+                        else:
+                            logging.info("no attachment link found in original cast, ending")
+                            logging.info("----")
 
-                    found_link = True
-                    logging.info(f"found link in parent cast: {link}")
-                    title = get_page_title(link)
-                    logging.info(f"title: {title}")
+                    logging.info("no link found in original cast, ending")
                     logging.info("----")
+                    continue
 
-            # last_cast = client.post_cast(m, parent=Parent(fid=cast.actor.fid, hash=cast.content.cast.hash))
+                logging.info(f"found link in original cast: {link}")
+                title = get_page_title(link)
+                logging.info(f"title: {title}")
+                logging.info("----")
+                
+                # send link to kiwistand
+                # logging.info(f"sending link to kiwistand: {title}, {link}")
+                send_link_to_kiwistand(link, title)
             pass
 
-def stream_casts(client):
+def stream_casts(client, fname):
     logging.info("streaming casts")
 
     # Connect to MongoDB server
@@ -82,7 +96,7 @@ def stream_casts(client):
             title = get_page_title(link)
             logging.info(f"title: {title}")
 
-            if link is not None and title is not None:
+            if link is not None and title is not None and title != "" and title != " " and title != "Access denied":
                 # check if link has already been posted
                 result = collection.find_one({"link": link})
                 if result:
@@ -94,7 +108,14 @@ def stream_casts(client):
 
                 # post the link to fc
                 logging.info(f"posting: {title} | {link}")
-                client.post_cast(f"Posted by @{current_cast.author.username}\n\n\"{title}\"", embeds=[link])
+                try:
+                    # Post links directly in the text, not as an attachment or embed
+                    # to ensure the link is visible in the cast received by the notification stream
+                    client.post_cast(f"Posted by @{current_cast.author.username}\n\n\"{title}\"\n{link}\nhttps://warpcast.com/{current_cast.author.username}/{current_cast.hash}")
+                except Exception as e:
+                    logging.error(f"Failed sending message: {e}")
+                    raise Exception("Failed sending message") from e
+                                
             # else:
             #     logging.info("no link found - searching parent cast(s)")
 
