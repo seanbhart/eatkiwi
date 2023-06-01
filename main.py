@@ -1,6 +1,7 @@
 import logging
 logging.basicConfig(level=logging.INFO)
 
+import threading
 from decouple import config
 from farcaster import Warpcast
 from eatkiwi.listeners.farcaster import stream_casts, stream_notifications
@@ -12,5 +13,15 @@ fname = config("FARCASTER_FNAME_DEV01")
 # The client will automagically cycle through access tokens
 client = Warpcast(mnemonic, rotation_duration=1)
 
+def main():
+    t1 = threading.Thread(target=stream_casts, args=(client, fname))
+    t2 = threading.Thread(target=stream_notifications, args=(client, fname))
+
+    t1.start()
+    t2.start()
+
+    t1.join()
+    t2.join()
+
 if __name__ == "__main__":
-    stream_notifications(client, fname)
+    main()

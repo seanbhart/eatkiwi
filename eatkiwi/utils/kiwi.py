@@ -49,7 +49,6 @@ def sign(message):
     # Create an account object from a mnemonic
     Account.enable_unaudited_hdwallet_features()
     acct = Account.from_mnemonic(config("FARCASTER_MNEMONIC_DEV01"))
-    logging.info(f"sending from address: {acct.address}")
 
     # Format and sign the message
     signable_message = encode_structured_data(message)
@@ -70,7 +69,7 @@ def create_message_data(href, title, type_):
     }
     return body
 
-def send(data):
+def send(data) -> bool:
     url = "https://news.kiwistand.com/api/v1/messages"
     
     try:
@@ -78,23 +77,30 @@ def send(data):
         status_code = response.status_code
 
         if status_code == 200:  # OK
-            logging.info('Request was successful')
+            logging.info('Message submission was successful')
+            return True
         elif status_code == 201:  # Created
-            logging.info('Request was successful and a resource was created')
+            logging.info('Message submission was successful and a resource was created')
+            return True
         elif status_code == 400:  # Bad Request
-            logging.error(f'There was a problem with the request. Check the data sent: {response.text}')
+            logging.error(f'There was a problem with the message submission. Check the data sent: {response.text}')
+            return False
         elif status_code == 401:  # Unauthorized
-            logging.error(f'The request lacks valid authentication credentials: {response.text}')
+            logging.error(f'The message submission lacks valid authentication credentials: {response.text}')
+            return False
         elif status_code == 403:  # Forbidden
-            logging.error(f'The server understood the request but refuses to authorize it: {response.text}')
+            logging.error(f'The server understood the message submission but refuses to authorize it: {response.text}')
+            return False
         elif status_code == 404:  # Not Found
             logging.error(f'The requested resource could not be found: {response.text}')
+            return False
         elif status_code == 500:  # Internal Server Error
             logging.error(f'The server encountered an internal error: {response.text}')
+            return False
         else:
             logging.error(f'Received status code that is not handled: {status_code}')
+            return False
         
-        response.raise_for_status()
     except requests.exceptions.HTTPError as errh:
         logging.error(f"HTTP Error: {errh}")
     except requests.exceptions.ConnectionError as errc:
@@ -106,13 +112,12 @@ def send(data):
     except Exception as e:
         logging.error(f"Failed sending message: {e}")
         raise Exception("Failed sending message") from e
+    return False
 
 def send_link_to_kiwistand(href, title):
     data = create_message_data(href, title, "amplify")
-    logging.info(data)
-    send(data)
+    return send(data)
 
 def upvote_link_on_kiwistand(href):
     data = create_message_data(href, "", "amplify")
-    logging.info(data)
-    send(data)
+    return send(data)
