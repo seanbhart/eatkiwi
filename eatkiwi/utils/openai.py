@@ -28,6 +28,19 @@ def trim_to_token_max(text):
     # Cut off the text at the last full stop
     return tokenizer.decode(trimmed_tokens[:last_full_stop_index + 1])
 
+def generate_pithy_reply():
+    messages = [
+        {
+            "role": "system",
+            "content": "You are a very unique, original, creative and humorous writer. You love sarcasm and wit. Write a very brief (100 characters or less) but creative and sarcastic reply about how you're not hungry or interested right now."
+        },
+    ]
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=messages
+    )
+    return response['choices'][0]['message']['content']
+
 def generate_webpage_title(page_content):
     messages = [
         {
