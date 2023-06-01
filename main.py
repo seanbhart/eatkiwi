@@ -6,7 +6,7 @@ from decouple import config
 from farcaster import Warpcast
 from eatkiwi.listeners.farcaster import stream_casts, stream_notifications
 
-dev = True
+dev = False
 if dev:
     mnemonic = config("FARCASTER_MNEMONIC_DEV01")
     fname = config("FARCASTER_FNAME_DEV01")
