@@ -3,7 +3,7 @@ from decouple import config
 from pymongo import MongoClient
 from farcaster.models import Parent
 from eatkiwi.utils.bytes import cut_off_string
-from eatkiwi.utils.links import extract_link, get_page_title, check_url_contains_kiwistand, truncate_string
+from eatkiwi.utils.links import extract_link, get_page_title, check_url_contains_skip_list, truncate_string
 from eatkiwi.utils.kiwi import send_link_to_kiwistand
 
 
@@ -37,8 +37,8 @@ def stream_notifications(client, fname, mnemonic):
                             link = original_cast.attachments[0].open_graph.url
                     continue
 
-                # check if link is from kiwistand
-                if check_url_contains_kiwistand(link):
+                # check if link is from urls to skip
+                if check_url_contains_skip_list(link):
                     continue
 
                 title = get_page_title(link)
