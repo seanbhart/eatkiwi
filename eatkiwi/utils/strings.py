@@ -43,9 +43,8 @@ def trim_generated_cast(title, author_username, hash, link, max_bytes=320, dev=F
     title_bytes = len(title.encode('utf-8'))
 
     if (base_bytes + title_bytes) <= max_bytes:
-        if dev:
-            return f'Posted by @{author_username}\n\n"{title}"\n{link}'
-        return f'Posted by @{author_username}\n\n"{title}"\n{link}\nhttps://warpcast.com/{author_username}/{hash}'
+        return f'Posted by @{author_username}\n\n"{title}"\n{link}'
+        # return f'Posted by @{author_username}\n\n"{title}"\n{link}\nhttps://warpcast.com/{author_username}/{hash}'
     else:
         max_title_bytes = max_bytes - base_bytes - ellipsis_bytes
         if max_title_bytes < 1:
@@ -54,6 +53,5 @@ def trim_generated_cast(title, author_username, hash, link, max_bytes=320, dev=F
         # Truncate title at character boundary
         truncated_title = title.encode('utf-8')[:max_title_bytes].decode('utf-8', 'ignore')
         
-        if dev:
-            return f'Posted by @{author_username}\n\n"{truncated_title}..."\n{link}'
-        return f'Posted by @{author_username}\n\n"{truncated_title}..."\n{link}\nhttps://warpcast.com/{author_username}/{hash}'
+        return f'Posted by @{author_username}\n\n"{truncated_title}..."\n{link}'
+        # return f'Posted by @{author_username}\n\n"{truncated_title}..."\n{link}\nhttps://warpcast.com/{author_username}/{hash}'
