@@ -20,6 +20,7 @@ eth-keys==0.4.0
 eth-rlp==0.3.0
 eth-typing==3.3.0
 eth-utils==2.1.0
+exceptiongroup==1.1.1
 farcaster==0.7.7
 filelock==3.12.0
 flatbuffers==23.5.26
@@ -34,6 +35,7 @@ h5py==3.8.0
 hexbytes==0.3.0
 huggingface-hub==0.15.0
 idna==3.4
+iniconfig==2.0.0
 jax==0.4.11
 Jinja2==3.1.2
 keras==2.12.0
@@ -50,6 +52,7 @@ openai==0.27.7
 opt-einsum==3.3.0
 packaging==23.1
 parsimonious==0.9.0
+pluggy==1.0.0
 protobuf==4.23.2
 pyasn1==0.5.0
 pyasn1-modules==0.3.0
@@ -57,6 +60,7 @@ pycryptodome==3.18.0
 pydantic==1.10.8
 pyhumps==3.8.0
 pymongo==4.3.3
+pytest==7.3.1
 python-decouple==3.8
 python-dotenv==0.21.1
 PyYAML==6.0
@@ -75,6 +79,7 @@ tensorflow-estimator==2.12.0
 tensorflow-io-gcs-filesystem==0.32.0
 termcolor==2.3.0
 tokenizers==0.13.3
+tomli==2.0.1
 toolz==0.12.0
 torch==2.0.1
 tqdm==4.65.0
