@@ -57,6 +57,6 @@ def send_post_request(url, data) -> bool:
     except requests.exceptions.RequestException as err:
         logging.error(f"Unexpected Error: {err}")
     except Exception as e:
-        logging.error(f"Failed sending request: {e}")
-        raise Exception("Failed sending request") from e
+        logging.error(f"[url] Failed sending request: {e}")
+        raise Exception("[url] Failed sending request") from e
     return False

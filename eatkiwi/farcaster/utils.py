@@ -26,4 +26,4 @@ def error_reply(client, cast) -> None:
     try:
         client.post_cast(f"something went wrong. I think I lost my 🥝", parent=Parent(fid=cast.author.fid, hash=cast.hash))
     except Exception as e:
-        logging.error(f"Failed sending message: {e}")
+        logging.error(f"[error_reply] Failed sending message: {e}")

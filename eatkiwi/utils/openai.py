@@ -79,7 +79,7 @@ def check_link_for_web3_content(page_content) -> Tuple[bool, str]:
         page_content (str): The text content of the webpage.
 
     Returns:
-        str: The generated reply
+        Tuple[bool, str]: A tuple containing a boolean indicating if the content qualifies and a suggested title if it does.
 
     """
     # Reduce the content length to reduce token cost
@@ -87,7 +87,7 @@ def check_link_for_web3_content(page_content) -> Tuple[bool, str]:
     messages = [
         {
             "role": "system",
-            "content": "You are an editor for a web3 aggregator site. You want to filter all the links that don't have any written content about web3, crypto, blockchains, digital assets, decentralized networks, DAOs, NFTs, or distributed systems. Ensure that the main article is on those topics. Be very selective of good written content on those topics. Don't just say yes to a few buzzwords - your readers depend on you. Return 'answer: yes' if the content qualifies and 'answer: no' if it does not. Do not return anything else other than 'answer: no' if you reject the content, but if you accept the content, return 'answer: yes' then on a new line suggest a title that summarizes the content in the style of a popular Hacker News post. Keep the title less than 80 characters. If you run into any errors or you think the content provided is not enough to make a decision, then return 'error' with a short explanation of why you could not make a decision."
+            "content": "You are an editor for a web3 aggregator site. You want to filter all the links that don't have any written content about web3, crypto, blockchains, digital assets, decentralized networks, DAOs, NFTs, or distributed systems. Ensure that the main article is on those topics. Be selective of good written content on those topics. Don't just say yes to a few buzzwords - your readers depend on you. Return 'answer: yes' if the content qualifies and 'answer: no' if it does not. Do not return anything else other than 'answer: no' if you reject the content, but if you accept the content, return 'answer: yes' then on a new line suggest a title that summarizes the content in the style of a popular Hacker News post, but make sure it's an assertive, interesting and catchy title. Don't include the name of the source in the title. Keep the title less than 80 characters. If you run into any errors or you think the content provided is not enough to make a decision, then return 'error' with a short explanation of why you could not make a decision."
         },
         {
             "role": "user",
@@ -96,6 +96,7 @@ def check_link_for_web3_content(page_content) -> Tuple[bool, str]:
     ]
     response = openai.ChatCompletion.create(
         model="gpt-4",
+        # model="gpt-3.5-turbo",
         messages=messages
     )
 
@@ -104,7 +105,10 @@ def check_link_for_web3_content(page_content) -> Tuple[bool, str]:
     logging.info(f"Response content: {response_content}")
     if "yes" in response_content.lower():
         suggested_title = response_content.split('\n')[1].strip()
-        return True, suggested_title
+        # chatgpt sometimes adds unwanted substrings in the title
+        title = remove_substrings(suggested_title, ["Title: "])
+        logging.info(f"title: {title}")
+        return True, title
     return False, None
 
 

@@ -78,7 +78,7 @@ class Eat:
             self.fcc.post_cast(cast_text, parent=Parent(fid=cast_requesting_eat.author.fid, hash=cast_requesting_eat.hash))
 
         except Exception as e:
-            logging.error(f"Failed sending message: {e}")
+            logging.error(f"[cast] Failed sending message: {e}")
             error_reply(self.fcc, cast_requesting_eat)
 
 

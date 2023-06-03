@@ -10,6 +10,7 @@ Functions:
 
 """
 
+import os
 import logging
 from decouple import config
 from pymongo import MongoClient
@@ -54,42 +55,39 @@ def stream_casts(commands_instance) -> None:
 
     # Stream new casts, and if a link is found, repost to FC
     for cast in fcc.stream_casts():
-        if not cast:
-            continue
+        if not cast: continue
             
         current_cast = cast
         link = extract_link(current_cast.text)
-        if link is None:
-            continue
+        if link is None: continue
         
         # these domains should be avoided
-        domains = ["kiwistand.com", "warpcast.com", "alphacaster.xyz", "twitter.com", "t.co", "youtube.com", "youtu.be", "cloudinary.com", "imgur.com", "reddit.com", "discord.com", "discord.gg", "zora.co", "opensea.io", "rarible.com", "wikiart.org"]
-        if check_url_contains_domains(link, domains):
-            continue
+        domains = config("BANNED_DOMAINS").split(',')
+        if check_url_contains_domains(link, domains): continue
         
         # don't post the same link twice
         result = collection.find_one({"link": link})
-        if result:
-            continue
+        if result: continue
         
         try:
             # check if the link contains web3 content
             page_content = get_text_from_webpage(link)
+            if not page_content: continue
             answer, title = check_link_for_web3_content(page_content)
             if not answer:
                 # store rejected links in the database as well
                 collection.insert_one({"link": link})
                 continue
         except Exception as e:
-            logging.error(f"Failed sending message: {e}")
+            logging.error(f"Failed getting title or saving link: {e}")
             continue
         
         try:
             # Post links directly in the text, not as an attachment or embed
             # to ensure the link is visible in the cast received by the notification stream (if someone mentions the content)
-            fcc.post_cast(f"🥝{title}\n{link}")
+            fcc.post_cast(f"🥝 {title}\n{link}")
             # fcc.post_cast(f"🥝 reply \"in the style of ___\" for a title and summary of this link 🥝\n\n{title}\n{link}")
             collection.insert_one({"link": link})
         except Exception as e:
-            logging.error(f"Failed sending message: {e}")
+            logging.error(f"[stream_casts] Failed sending message: {e}")
             continue
