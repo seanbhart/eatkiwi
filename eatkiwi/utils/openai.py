@@ -144,7 +144,7 @@ def generate_webpage_title_and_summary(page_content, writing_style) -> Tuple[str
         messages = [
             {
                 "role": "system",
-                "content": f"You are a very experienced and creative author. Your first task is to suggest a title in the style of {writing_style} based on the provided text. The title should not exceed 80 characters. Your second task is to summarize the text in the style of {writing_style}, within a limit of 220 characters."
+                "content": f"You are a very experienced author with many years of writing in the style of {writing_style}. Your first task is to suggest a title in the style of {writing_style} based on the provided text. The title should not exceed 80 characters. Your second task is to summarize the text in the style of {writing_style}, within a limit of 220 bytes."
             },
             {
                 "role": "system",
