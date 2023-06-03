@@ -1,10 +1,10 @@
 import logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.info)
 
 from decouple import config
-from eatkiwi.utils.kiwi import upvote_link_on_kiwistand
+from eatkiwi.kiwi.message import upvote_link_on_kiwistand
 
-mnemonic = config("FARCASTER_MNEMONIC_DEV01")
+MNEMONIC = config("FARCASTER_MNEMONIC_DEV01")
 
 if __name__ == "__main__":
     """
@@ -15,4 +15,4 @@ if __name__ == "__main__":
     HAS been previously submitted to ensure accurate testing and analysis.
     """
     href = "https://www.theblock.co/post/232604/coinbase-ceo-cites-rising-threat-from-china-in-fresh-plea-to-us-officials"
-    upvote_link_on_kiwistand(href, mnemonic)
+    upvote_link_on_kiwistand(href, MNEMONIC)
