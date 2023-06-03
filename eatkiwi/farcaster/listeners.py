@@ -63,7 +63,7 @@ def stream_casts(commands_instance) -> None:
             continue
         
         # these domains should be avoided
-        domains = ["kiwistand", "warpcast", "alphacaster", "twitter", "youtube.com", "youtu.be", "cloudinary", "imgur", "reddit", "discord", "zora.co", "opensea.io", "rarible.com", "wikiart.org"]
+        domains = ["kiwistand.com", "warpcast.com", "alphacaster.xyz", "twitter.com", "t.co", "youtube.com", "youtu.be", "cloudinary.com", "imgur.com", "reddit.com", "discord.com", "discord.gg", "zora.co", "opensea.io", "rarible.com", "wikiart.org"]
         if check_url_contains_domains(link, domains):
             continue
         
