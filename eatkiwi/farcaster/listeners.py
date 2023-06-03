@@ -13,7 +13,8 @@ Functions:
 import logging
 from decouple import config
 from pymongo import MongoClient
-from eatkiwi.utils.links import extract_link, check_url_contains_domains
+from eatkiwi.utils.links import extract_link, get_page_content, check_url_contains_domains
+from eatkiwi.utils.openai import check_link_for_web3_content
 from eatkiwi.farcaster.mention import mention
 from eatkiwi.farcaster.reply import reply
 from eatkiwi.farcaster.utils import error_reply
@@ -62,7 +63,7 @@ def stream_casts(commands_instance) -> None:
             continue
         
         # these domains should be avoided
-        domains = ["kiwistand", "warpcast", "alphacaster", "twitter", "youtube.com", "youtu.be", "cloudinary", "imgur", "reddit", "discord", "zora.co", "opensea.io", "rarible.com"]
+        domains = ["kiwistand", "warpcast", "alphacaster", "twitter", "youtube.com", "youtu.be", "cloudinary", "imgur", "reddit", "discord", "zora.co", "opensea.io", "rarible.com", "wikiart.org"]
         if check_url_contains_domains(link, domains):
             continue
         
@@ -70,6 +71,16 @@ def stream_casts(commands_instance) -> None:
         result = collection.find_one({"link": link})
         if result:
             continue
+        
+        try:
+            # check if the link contains web3 content
+            page_content = get_page_content(cast_to_eat.text)
+            if not check_link_for_web3_content(page_content):
+                continue
+
+        except Exception as e:
+            logging.error(f"Failed sending message: {e}")
+            error_reply(self.fcc, cast_requesting_eat)
 
         try:
             # Post links directly in the text, not as an attachment or embed

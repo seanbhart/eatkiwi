@@ -9,6 +9,7 @@ Functions:
         Generates a title and summary of the provided text using the OpenAI API.
 
 """
+import logging
 import openai
 from typing import Tuple
 from transformers import GPT2Tokenizer
@@ -68,6 +69,39 @@ def generate_pithy_reply() -> str:
         messages=messages
     )
     return response['choices'][0]['message']['content']
+
+
+def check_link_for_web3_content(page_content) -> bool:
+    """
+    Check if a link has some written content about web3.
+
+    Args:
+        page_content (str): The text content of the webpage.
+
+    Returns:
+        str: The generated reply
+
+    """
+    messages = [
+        {
+            "role": "system",
+            "content": "You are an editor for a web3 aggregator site. You want to filter all the links that don't have any written content about web3, crypto, blockchains, digital assets, decentralized networks, DAOs, NFTs, or distributed systems. Ensure that the main article is on those topics. Be very selective of good written content on those topics. Don't just say yes to a few buzzwords - your readers depend on you. Return 'yes' if the content qualifies and 'no' if it does not. Do not return anything else other than 'yes' or 'no' unless you run into any errors or you think the content provided is not enough to make a decision, then return 'error' with a short explanation of why you could not make a decision."
+        },
+        {
+            "role": "user",
+            "content": f"{page_content}"
+        },
+    ]
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=messages
+    )
+
+    # The reponse should have a 'yes' or 'no' answer
+    response_content = response['choices'][0]['message']['content']
+    if "yes" in response_content.lower():
+        return True
+    return False
 
 
 def generate_webpage_title_and_summary(page_content, writing_style) -> Tuple[str, str]:
