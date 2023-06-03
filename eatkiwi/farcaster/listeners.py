@@ -87,7 +87,8 @@ def stream_casts(commands_instance) -> None:
         try:
             # Post links directly in the text, not as an attachment or embed
             # to ensure the link is visible in the cast received by the notification stream (if someone mentions the content)
-            fcc.post_cast(f"🥝 reply \"in the style of ___\" for a title and summary of this link 🥝\n\n{title}\n{link}")
+            fcc.post_cast(f"🥝{title}\n{link}")
+            # fcc.post_cast(f"🥝 reply \"in the style of ___\" for a title and summary of this link 🥝\n\n{title}\n{link}")
             collection.insert_one({"link": link})
         except Exception as e:
             logging.error(f"Failed sending message: {e}")
