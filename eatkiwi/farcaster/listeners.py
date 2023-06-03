@@ -13,7 +13,7 @@ Functions:
 import logging
 from decouple import config
 from pymongo import MongoClient
-from eatkiwi.utils.links import extract_link, get_page_content, check_url_contains_domains
+from eatkiwi.utils.links import extract_link, get_text_from_webpage, check_url_contains_domains
 from eatkiwi.utils.openai import check_link_for_web3_content
 from eatkiwi.farcaster.mention import mention
 from eatkiwi.farcaster.reply import reply
@@ -74,20 +74,21 @@ def stream_casts(commands_instance) -> None:
         
         try:
             # check if the link contains web3 content
-            page_content = get_page_content(cast_to_eat.text)
-            if not check_link_for_web3_content(page_content):
+            page_content = get_text_from_webpage(link)
+            answer, title = check_link_for_web3_content(page_content)
+            if not answer:
+                # store rejected links in the database as well
+                collection.insert_one({"link": link})
                 continue
-
         except Exception as e:
             logging.error(f"Failed sending message: {e}")
-            error_reply(self.fcc, cast_requesting_eat)
-
+            continue
+        
         try:
             # Post links directly in the text, not as an attachment or embed
             # to ensure the link is visible in the cast received by the notification stream (if someone mentions the content)
-            fcc.post_cast(f"🥝 reply \"in the style of ___\" for a title and summary of this link 🥝\n{link}")
+            fcc.post_cast(f"🥝 reply \"in the style of ___\" for a title and summary of this link 🥝\n\n{title}\n{link}")
             collection.insert_one({"link": link})
-            
         except Exception as e:
             logging.error(f"Failed sending message: {e}")
-            error_reply(fcc, cast)
+            continue
