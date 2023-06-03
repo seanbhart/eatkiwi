@@ -1,6 +1,8 @@
 import re
 import logging
 
+from decouple import config
+from pymongo import MongoClient
 from farcaster import Warpcast
 from farcaster.models import Parent
 from eatkiwi.utils.links import get_page_content
@@ -60,10 +62,16 @@ class Eat:
         """
         
         try:
-            page_content = get_page_content(cast_to_eat.text)
+            link, page_content = get_page_content(cast_to_eat.text)
 
             # the title / summary process will throw an error if it cannot process adequately
             title, summary = generate_webpage_title_and_summary(page_content, writing_style)
+
+            # Record the link in the database so it isn't recasted from the stream
+            mongo_client = MongoClient(config("MONGO_URL"))
+            db = mongo_client[config("MONGO_DB_FC")]
+            collection = db[config("MONGO_FC_COLLECTION_LINKS")]
+            collection.insert_one({"link": link})
 
             # the title might need trimming - gpt doesn't always follow length guidelines
             cast_text = trim_to_cast_max_bytes(f"{title}\n{summary}")

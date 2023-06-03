@@ -25,7 +25,7 @@ def set_config():
 
 def test_check_link_for_web3_content_positive():
     set_config()
-    page_content = get_page_content(test_urls[1])
+    link, page_content = get_page_content(test_urls[1])
     result = check_link_for_web3_content(page_content)
     logging.info(f"positive result: {result}")
     assert result == True

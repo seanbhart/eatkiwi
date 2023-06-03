@@ -5,6 +5,7 @@ This module provides functions for working with URLs and web pages.
 import re
 import logging
 import requests
+from typing import Tuple
 from bs4 import BeautifulSoup
 from typing import Optional
 from urllib.parse import urlparse
@@ -116,7 +117,7 @@ def get_text_from_webpage(url) -> Optional[str]:
         return None
 
 
-def get_page_content(text) -> str:
+def get_page_content(text) -> Tuple[str, str]:
     link = extract_link(text)
     if link is None:
         raise ValueError("Link is None")
@@ -127,4 +128,4 @@ def get_page_content(text) -> str:
         logging.error(f"Error getting page content for {link} : {str(e)}")
         raise ValueError("Error getting page content")
     
-    return page_content
+    return link, page_content
