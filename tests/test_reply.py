@@ -2,12 +2,10 @@
 import openai
 import pytest
 from decouple import config
-from unittest.mock import MagicMock
 from farcaster import Warpcast
 from farcaster.models import ApiNotificationCastMention, ApiUser, ApiPfp, ApiProfile, Bio, CastContent, ApiCast, Replies, Reactions, Recasts, Watches, ViewerContext2
-from eatkiwi.commands.eat import Eat
 from eatkiwi.commands.manager import Commands
-from eatkiwi.farcaster.mention import mention
+from eatkiwi.farcaster.reply import reply
 
 
 def set_config():
@@ -39,11 +37,12 @@ def test_notification():
 
     text = '\n'.join([
         # "@fcdevtest01 ",
-        # "eat in the style of ",
+        # "eat ",
+        # "in the style of ",
         # "Hacker News",
         # "magical realism, where fantastical elements blend seamlessly with reality",
         # "stream of consciousness, where the character’s thoughts and emotions flow uninterrupted onto the page",
-        # "epistolary fiction, where the story is told through a series of letters, diary entries, or other documents",
+        "epistolary fiction, where the story is told through a series of letters, diary entries, or other documents",
         # "flash fiction, where the entire story is condensed into a few hundred words or less",
         # "experimental literature, where a traditional narrative structure is abandoned in favor of unconventional forms and techniques",
         # "metafiction, where the story acknowledges its own status as a work of fiction",
@@ -51,8 +50,8 @@ def test_notification():
         # "gothic literature, where dark, supernatural elements are woven into a brooding and atmospheric tale",
         # "historical fiction, where the story is set in a specific time period and strives for historical accuracy",
         # "bildungsroman, where the story follows the protagonist’s coming-of-age and personal growth",
-        "Scooby-Doo voice",
-        " https://www.theblock.co/post/232983/republican-draft-bill-would-create-new-definition-of-decentralized-network",
+        # "Scooby-Doo voice",
+        # " https://www.theblock.co/post/232983/republican-draft-bill-would-create-new-definition-of-decentralized-network",
     ])
 
     cast = ApiCast(
@@ -87,8 +86,8 @@ def test_notification():
     return notification
 
 
-def test_mention(commands_instance, test_notification):
+def test_reply(commands_instance, test_notification):
     set_config()
 
     # Call the mention function with the test notification
-    mention(commands_instance, test_notification)
+    reply(commands_instance, test_notification)

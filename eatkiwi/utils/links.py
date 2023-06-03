@@ -6,9 +6,8 @@ import re
 import logging
 import requests
 from bs4 import BeautifulSoup
-from typing import Tuple, Optional
+from typing import Optional
 from urllib.parse import urlparse
-from farcaster.models import Parent
 
 
 def check_url_contains_domains(url, domains) -> bool:
@@ -101,7 +100,7 @@ def get_text_from_webpage(url) -> Optional[str]:
         Optional[str]: The text content of the web page, or None if the page cannot be retrieved.
 
     """
-    logging.info(f"Getting text from {url}")
+    logging.debug(f"Getting text from {url}")
     try:
         response = requests.get(url, timeout=5)
         if response.status_code == 200:

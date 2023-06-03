@@ -2,8 +2,6 @@ import logging
 
 
 def reply(commands_instance, notification):
-    # TODO: process replies
-    # Don't process replies at the moment, but log reply text
-    # for behavior analysis - consider trying to process replies
-    # without mentions or commands
-    logging.info(f"REPLY: {notification.content.cast.text}")
+    # Replies should have some text indicating the style of writing desired and
+    # have the parent cast as an @eatkiwi cast with a link
+    commands_instance.eat.eat_notification(notification)

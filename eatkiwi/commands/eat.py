@@ -60,16 +60,13 @@ class Eat:
         """
         
         try:
-            logging.info(f"Received mention: {cast_to_eat.text}")
             page_content = get_page_content(cast_to_eat.text)
 
             # the title / summary process will throw an error if it cannot process adequately
             title, summary = generate_webpage_title_and_summary(page_content, writing_style)
-            logging.info(f"Title: {title}, Summary: {summary}")
 
             # the title might need trimming - gpt doesn't always follow length guidelines
             cast_text = trim_to_cast_max_bytes(f"{title}\n{summary}")
-            logging.info(f"Replying to cast with: {cast_text}")
             self.fcc.post_cast(cast_text, parent=Parent(fid=cast_requesting_eat.author.fid, hash=cast_requesting_eat.hash))
 
         except Exception as e:
@@ -80,7 +77,6 @@ class Eat:
     def eat_notification(self, notification):
         # If there is a url in the text, ignore any parent cast and assume the request is about the passed url
         if self.has_url(notification.content.cast.text):
-            logging.info("url in original cast")
             # Check whether a writing style was passed after "eat"
             writing_style = self.check_text_between_eat_and_link(notification.content.cast.text)
             self.cast(cast_to_eat=notification.content.cast, cast_requesting_eat=notification.content.cast, writing_style=writing_style)
@@ -88,13 +84,10 @@ class Eat:
         else:
             # check if the cast with the mention is a reply to another cast (presumably with the link)
             if notification.content.cast.parent_hash is not None:
-                logging.info(f"mention in a reply cast: {notification}")
                 parent_cast = self.fcc.get_cast(notification.content.cast.parent_hash).cast
                 writing_style = self.check_text_after_eat(notification.content.cast.text)
                 self.cast(cast_to_eat=parent_cast, cast_requesting_eat=notification.content.cast, writing_style=writing_style)
 
             else:
                 # There was no url, and there is no parent cast - nothing to process
-                logging.info("no url and no parent")
                 self.fcc.post_cast("I'm happy to eat any 🥝link🥝 if you send me one!", parent=Parent(fid=notification.content.cast.author.fid, hash=notification.content.cast.hash))
-            

@@ -5,16 +5,12 @@ Functions:
     trim_to_token_max(text: str) -> str:
         Trims the input text to the maximum number of tokens allowed by the GPT-2 tokenizer.
 
-    generate_webpage_summary(page_content: str) -> str:
-        Generates a summary of the provided text using the OpenAI API.
-
     generate_webpage_title_and_summary(page_content: str) -> Tuple[str, str]:
         Generates a title and summary of the provided text using the OpenAI API.
 
 """
 import openai
 from typing import Tuple
-from decouple import config
 from transformers import GPT2Tokenizer
 from eatkiwi.utils.strings import remove_substrings, truncate_string_by_character
 
@@ -66,62 +62,6 @@ def generate_pithy_reply() -> str:
             "role": "system",
             "content": "You are a very unique, original, creative and humorous writer. You love sarcasm and wit. Write a very brief (100 characters or less) but creative and sarcastic reply about how you're not hungry or interested right now."
         },
-    ]
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=messages
-    )
-    return response['choices'][0]['message']['content']
-
-
-def generate_webpage_title(page_content) -> str:
-    """
-    Generates a catchy and accurate title for a webpage based on the provided text.
-
-    Args:
-        page_content (str): The text content of the webpage.
-
-    Returns:
-        str: The generated title.
-
-    """
-    messages = [
-        {
-            "role": "system",
-            "content": "You are a helpful assistant. Your task is to suggest a catchy and accurate title based on the provided text. The title should not exceed 80 characters."
-        },
-        {
-            "role": "user",
-            "content": f"{page_content}"
-        }
-    ]
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=messages
-    )
-    return response['choices'][0]['message']['content']
-
-
-def generate_webpage_summary(page_content) -> str:
-    """
-    Generates a summary of the provided text using the OpenAI API.
-
-    Args:
-        page_content (str): The text content of the webpage.
-
-    Returns:
-        str: The generated summary.
-
-    """
-    messages = [
-        {
-            "role": "system",
-            "content": "You are a helpful assistant with the style of a New York Times tweet author. Your task is to summarize the following text in no more than 320 bytes."
-        },
-        {
-            "role": "user",
-            "content": f"{page_content}"
-        }
     ]
     response = openai.ChatCompletion.create(
         model="gpt-4",

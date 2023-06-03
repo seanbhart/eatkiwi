@@ -15,7 +15,6 @@ Functions:
 
 from eth_account import Account
 from eth_account.messages import encode_structured_data
-from decouple import config
 from eatkiwi.utils.numbers import get_unix_time
 from eatkiwi.utils.url import send_post_request
 

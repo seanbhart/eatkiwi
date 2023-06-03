@@ -2,10 +2,8 @@
 import openai
 import pytest
 from decouple import config
-from unittest.mock import MagicMock
 from farcaster import Warpcast
 from farcaster.models import ApiNotificationCastMention, ApiUser, ApiPfp, ApiProfile, Bio, CastContent, ApiCast, Replies, Reactions, Recasts, Watches, ViewerContext2
-from eatkiwi.commands.eat import Eat
 from eatkiwi.commands.manager import Commands
 from eatkiwi.farcaster.mention import mention
 
