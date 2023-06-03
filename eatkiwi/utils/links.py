@@ -23,7 +23,7 @@ def check_url_contains_domains(url, domains) -> bool:
 
     """
     parsed_url = urlparse(url)
-    return any(domain in parsed_url.netloc for domain in domains)
+    return any(domain in parsed_url.netloc.split('.') for domain in domains)
 
 
 def has_link(text) -> bool:
