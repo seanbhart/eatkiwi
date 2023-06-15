@@ -11,9 +11,11 @@ Functions:
 """
 
 import os
+import time
 import logging
 from decouple import config
 from pymongo import MongoClient
+from requests.exceptions import ChunkedEncodingError
 from eatkiwi.utils.links import extract_link, get_text_from_webpage, check_url_contains_domains
 from eatkiwi.utils.openai import check_link_for_web3_content
 from eatkiwi.farcaster.mention import mention
@@ -98,9 +100,9 @@ def stream_casts(commands_instance) -> None:
                     continue
 
         except ChunkedEncodingError as e:
-                max_retries -= 1
-                if max_retries <= 0:
-                    logging.error(f"Failed to stream casts after multiple retries: {e}")
-                    break
-                logging.warning(f"ChunkedEncodingError occurred, retrying in {retry_delay} seconds: {e}")
-                time.sleep(retry_delay)
+            max_retries -= 1
+            if max_retries <= 0:
+                logging.error(f"Failed to stream casts after multiple retries: {e}")
+                break
+            logging.warning(f"ChunkedEncodingError occurred, retrying in {retry_delay} seconds: {e}")
+            time.sleep(retry_delay)
