@@ -10,7 +10,7 @@ Functions:
 
 """
 
-import os
+import json
 import time
 import logging
 from decouple import config
@@ -31,16 +31,24 @@ def stream_notifications(commands_instance) -> None:
     fcc = commands_instance.fcc
     bot_fname = commands_instance.bot_fname
     
-    for notification in fcc.stream_notifications(skip_existing=True):
-        # Check the cast in the notification
-        if not notification:
-            continue
+    retry_delay = 5
 
-        # Check if the notification is for a mention or reply
-        if notification.type == 'cast-mention':
-            mention(commands_instance, notification)
-        elif notification.type == 'cast-reply':
-            reply(commands_instance, notification)
+    while True:
+        try:
+            for notification in fcc.stream_notifications(skip_existing=True):
+                # Check the cast in the notification
+                if not notification:
+                    continue
+
+                # Check if the notification is for a mention or reply
+                if notification.type == 'cast-mention':
+                    mention(commands_instance, notification)
+                elif notification.type == 'cast-reply':
+                    reply(commands_instance, notification)
+        
+        except json.JSONDecodeError as e:
+            logging.warning(f"JSONDecodeError occurred while streaming notifications, retrying in {retry_delay} seconds: {e}")
+            time.sleep(retry_delay)
 
 
 def stream_casts(commands_instance) -> None:
@@ -105,4 +113,8 @@ def stream_casts(commands_instance) -> None:
                 logging.error(f"Failed to stream casts after multiple retries: {e}")
                 break
             logging.warning(f"ChunkedEncodingError occurred, retrying in {retry_delay} seconds: {e}")
+            time.sleep(retry_delay)
+        
+        except json.JSONDecodeError as e:
+            logging.warning(f"JSONDecodeError occurred while streaming casts, retrying in {retry_delay} seconds: {e}")
             time.sleep(retry_delay)
