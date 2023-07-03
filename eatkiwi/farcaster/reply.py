@@ -2,6 +2,10 @@ import logging
 
 
 def reply(commands_instance, notification):
-    # Replies should have some text indicating the style of writing desired and
-    # have the parent cast as an @eatkiwi cast with a link
-    commands_instance.eat.eat_notification(notification)
+    # Check if the mention has a known command
+    if commands_instance.command_exists(notification):
+        commands_instance.handle_reply_command(notification)
+    else:
+
+        # No command was given with the mention, so assume the caller wants the link "eaten"
+        commands_instance.eat.eat_notification(notification)

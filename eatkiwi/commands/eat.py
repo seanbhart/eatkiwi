@@ -21,7 +21,7 @@ class Eat:
     
 
     def eat_offline_reply(self):
-        if re.search(EAT_PATTERN):
+        if re.search(self.EAT_PATTERN):
             return "I'm sorry, but I'm not eating 🥝links🥝 right now."
 
 
@@ -51,7 +51,8 @@ class Eat:
 
     def cast(self, cast_to_eat, cast_requesting_eat, writing_style):
         """
-        Extracts the title and summary of a webpage from a given cast, generates a pithy reply, and posts it as a reply to the cast.
+        Creates an appropriate title and summary for the webpage at the given url, and replies to the
+        requesting cast with both and a kiwinews intent link with the title and link.
 
         Args:
             cast_to_eat (Cast): The cast object to process.
@@ -70,15 +71,26 @@ class Eat:
             # Record the link in the database so it isn't recasted from the stream
             mongo_client = MongoClient(config("MONGO_URL"))
             db = mongo_client[config("MONGO_DB_FC")]
-            collection = db[config("MONGO_FC_COLLECTION_LINKS")]
-            collection.insert_one({"link": link})
+            collection_links = db[config("MONGO_FC_COLLECTION_LINKS")]
+            collection_links.insert_one({"link": link})
+
+            # Remove quotations marks from the title and summary
+            title = title.replace('"', '')
+            summary = summary.replace('"', '')
+
+            # Format the title for a url parameter
+            title = title.replace(" ", "+")
+
+            # Create the kiwinews intent link with the title and link
+            kiwinews_link = f"https://news.kiwistand.com/submit?title={title}&url={link}"
 
             # the title might need trimming - gpt doesn't always follow length guidelines
-            cast_text = trim_to_cast_max_bytes(f"{title}\n{summary}")
+            # be sure to put the kiwinews intent link first so it isn't trimmed
+            cast_text = trim_to_cast_max_bytes(f"{kiwinews_link}\n{summary}")
             self.fcc.post_cast(cast_text, parent=Parent(fid=cast_requesting_eat.author.fid, hash=cast_requesting_eat.hash))
 
         except Exception as e:
-            logging.error(f"[cast] Failed sending message: {e}")
+            logging.error(f"[eat] Failed sending message: {e}")
             error_reply(self.fcc, cast_requesting_eat)
 
 

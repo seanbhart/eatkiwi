@@ -61,7 +61,8 @@ def stream_casts(commands_instance) -> None:
 
     mongo_client = MongoClient(config("MONGO_URL"))
     db = mongo_client[config("MONGO_DB_FC")]
-    collection = db[config("MONGO_FC_COLLECTION_LINKS")]
+    collection_links = db[config("MONGO_FC_COLLECTION_LINKS")]
+    collection_eat_casts = db[config("MONGO_FC_COLLECTION_EAT_CASTS")]
 
     max_retries = 3
     retry_delay = 5
@@ -81,7 +82,7 @@ def stream_casts(commands_instance) -> None:
                 if check_url_contains_domains(link, domains): continue
                 
                 # don't post the same link twice
-                result = collection.find_one({"link": link})
+                result = collection_links.find_one({"link": link})
                 if result: continue
                 
                 try:
@@ -91,7 +92,7 @@ def stream_casts(commands_instance) -> None:
                     answer, title = check_link_for_web3_content(page_content)
                     if not answer:
                         # store rejected links in the database as well
-                        collection.insert_one({"link": link})
+                        collection_links.insert_one({"link": link})
                         continue
                 except Exception as e:
                     logging.error(f"Failed getting title or saving link: {e}")
@@ -99,10 +100,19 @@ def stream_casts(commands_instance) -> None:
                 
                 try:
                     # Post links directly in the text, not as an attachment or embed
-                    # to ensure the link is visible in the cast received by the notification stream (if someone mentions the content)
-                    fcc.post_cast(f"🥝 {title}\n{link}")
-                    # fcc.post_cast(f"🥝 reply \"in the style of ___\" for a title and summary of this link 🥝\n\n{title}\n{link}")
-                    collection.insert_one({"link": link})
+                    # to ensure the link is visible in the cast received by the
+                    # notification stream (if someone mentions the content)
+                    cast_content = fcc.post_cast(f"🥝 {title}\n{link}")
+
+                    # store the link in a separate collection to provide a simple check for duplicates
+                    collection_links.insert_one({"link": link})
+
+                    # store the original cast in a separate collection for reference if requested
+                    collection_eat_casts.insert_one({
+                        "eat_cast_hash": cast_content.cast.hash,
+                        "original_cast_hash": current_cast.hash,
+                        "original_cast_username": current_cast.author.username
+                    })
                 except Exception as e:
                     logging.error(f"[stream_casts] Failed sending message: {e}")
                     continue
