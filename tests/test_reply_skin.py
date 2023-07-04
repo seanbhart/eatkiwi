@@ -37,8 +37,8 @@ def test_notification():
 
     cast = ApiCast(
         hash='0x13acc996fef8f4c37337b398c516c2bfa726add7',
-        thread_hash='0x995714967c80be9d944a4843eab39d406f97d4cc',
-        parent_hash='0x995714967c80be9d944a4843eab39d406f97d4cc',
+        thread_hash='0x62adcf85c2641bd88256080b2a0391813b06aeca',
+        parent_hash='0x62adcf85c2641bd88256080b2a0391813b06aeca',
         author=actor,
         text=f"{bot_fname} skin",
         timestamp=1688422619000,

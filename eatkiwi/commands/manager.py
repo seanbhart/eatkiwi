@@ -44,8 +44,10 @@ class Commands:
 
     # Process a command given after mentioning the bot
     def handle_mention_command(self, notification):
+        logging.info(f"[handle_mention_command] Handling mention command: {notification.content.cast.text}")
         command_prefix = f"{self.bot_fname} "
         for command, handler in self.command_mapping.items():
+            logging.info(f"[handle_mention_command] Checking if {command} command exists after mention: {notification.content.cast.text}")
             if notification.content.cast.text.lower().startswith(command_prefix + command):
                 handler(notification)
                 break
@@ -54,10 +56,12 @@ class Commands:
     def handle_reply_command(self, notification):
         success = False
         for command, handler in self.command_mapping.items():
+            logging.info(f"[handle_reply_command] Checking if {command} command exists in reply: {notification.content.cast.text}")
             if notification.content.cast.text.lower().startswith(command):
                 success = True
                 handler(notification)
         if not success:
+            logging.info(f"[handle_reply_command] No command found in reply: {notification.content.cast.text}")
             # Try a mention command - even though it's technically a reply
             # the user may have mentioned the bot in the reply
             self.handle_mention_command(notification)
