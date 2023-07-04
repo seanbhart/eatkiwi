@@ -87,7 +87,8 @@ class Eat:
             # the title might need trimming - gpt doesn't always follow length guidelines
             # be sure to put the kiwinews intent link first so it isn't trimmed
             cast_text = trim_to_cast_max_bytes(f"{kiwinews_link}\n{summary}")
-            self.fcc.post_cast(cast_text, parent=Parent(fid=cast_requesting_eat.author.fid, hash=cast_requesting_eat.hash))
+            logging.info(f"[eat] Cast text: {cast_text}")
+            # self.fcc.post_cast(cast_text, parent=Parent(fid=cast_requesting_eat.author.fid, hash=cast_requesting_eat.hash))
 
         except Exception as e:
             logging.error(f"[eat] Failed sending message: {e}")
@@ -110,4 +111,5 @@ class Eat:
 
             else:
                 # There was no url, and there is no parent cast - nothing to process
-                self.fcc.post_cast("I'm happy to eat any 🥝link🥝 if you send me one!", parent=Parent(fid=notification.content.cast.author.fid, hash=notification.content.cast.hash))
+                logging.info(f"[eat] No url found in cast {notification.content.cast.hash} and no parent cast found")
+                # self.fcc.post_cast("I'm happy to eat any 🥝link🥝 if you send me one!", parent=Parent(fid=notification.content.cast.author.fid, hash=notification.content.cast.hash))

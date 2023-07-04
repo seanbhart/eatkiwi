@@ -72,6 +72,9 @@ def stream_casts(commands_instance) -> None:
             # Stream new casts, and if a link is found, repost to FC
             for cast in fcc.stream_casts():
                 if not cast: continue
+
+                # don't process casts from the bot itself
+                if f"@{cast.author.username}" == bot_fname: continue
                     
                 current_cast = cast
                 link = extract_link(current_cast.text)
