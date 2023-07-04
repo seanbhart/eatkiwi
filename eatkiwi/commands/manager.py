@@ -29,6 +29,7 @@ class Commands:
 
     # Check if a command exists after the mention
     def command_exists(self, notification):
+        logging.info(f"[command_exists] Checking if command exists: {notification.content.cast.text}")
         # First check if the command is after a mention
         command_prefix = f"{self.bot_fname} "
         for command in self.command_mapping.keys():
@@ -62,6 +63,7 @@ class Commands:
             self.handle_mention_command(notification)
     
     def handle_generic_command(self, notification, command, perform_func):
+        logging.info(f"[handle_generic_command] Handling {command} command for function {perform_func.__name__}")
         try:
             perform_func(notification)
         except Exception as e:

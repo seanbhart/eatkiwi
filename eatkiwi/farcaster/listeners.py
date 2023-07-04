@@ -36,6 +36,8 @@ def stream_notifications(commands_instance) -> None:
     while True:
         try:
             for notification in fcc.stream_notifications(skip_existing=True):
+                logging.info(f"notification: {notification}")
+
                 # Check the cast in the notification
                 if not notification:
                     continue
