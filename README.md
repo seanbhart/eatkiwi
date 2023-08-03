@@ -33,3 +33,7 @@ Run a local MongoDB instance to store links that are casted. This is used to pre
 `docker run -d -p 27017:27017 --name my-mongo mongo:latest`
 
 Use `pytest` to run tests. e.g. `pytest --log-cli-level=DEBUG tests/test_reply.py`
+
+# Testing
+
+Example: `pytest --log-cli-level=INFO tests/test_get_thread.py`

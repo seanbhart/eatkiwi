@@ -123,12 +123,14 @@ def stream_casts(commands_instance) -> None:
                     continue
 
         except ChunkedEncodingError as e:
-            max_retries -= 1
-            if max_retries <= 0:
-                logging.error(f"Failed to stream casts after multiple retries: {e}")
-                break
-            logging.warning(f"ChunkedEncodingError occurred, retrying in {retry_delay} seconds: {e}")
-            time.sleep(retry_delay)
+            # max_retries -= 1
+            # if max_retries <= 0:
+            #     logging.error(f"Failed to stream casts after multiple retries: {e}")
+            #     break
+            # logging.warning(f"ChunkedEncodingError occurred, retrying in {retry_delay} seconds: {e}")
+            # time.sleep(retry_delay)
+            logging.error(f"ChunkedEncodingError occurred, skipping this iteration: {e}")
+            continue
         
         except json.JSONDecodeError as e:
             logging.warning(f"JSONDecodeError occurred while streaming casts, retrying in {retry_delay} seconds: {e}")

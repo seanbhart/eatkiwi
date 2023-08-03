@@ -9,6 +9,7 @@ from eatkiwi.commands.eat import Eat
 
 def set_config():
     openai.api_key = config("OPENAI_KEY")
+    logging.basicConfig(level=logging.INFO)
 
 
 @pytest.fixture
@@ -17,9 +18,11 @@ def fcc_instance():
     return fcc
 
 
-def test_get_cast(fcc_instance):
+def test_get_all_casts_in_thread(fcc_instance):
     set_config()
 
-    cast = fcc_instance.get_cast("0xa79007d0b63a7d87cd085363439e4d637fa1fd7d")
-    logging.info(f"Cast: {cast}")
-    logging.info(f"Cast parent_source: {cast.cast.parent_source}")
+    # Call the cast method
+    casts = fcc_instance.get_all_casts_in_thread("0xa79007d0b63a7d87cd085363439e4d637fa1fd7d")
+    logging.info(f"Casts: {casts}")
+    # for cast in casts:
+    #     logging.info(f"Cast: {cast}")
